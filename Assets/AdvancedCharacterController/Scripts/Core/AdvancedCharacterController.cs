@@ -177,7 +177,7 @@ public class AdvancedCharacterController : MonoBehaviour
         {
             return;
         }
-        
+
         this.drag = drag;
         UpdateRigidbodyValues();
     }
@@ -222,6 +222,8 @@ public class AdvancedCharacterController : MonoBehaviour
     private RaycastHit _groundHit;
     public bool IsGrounded { get; private set; }
 
+    public bool OnSlope { get; private set; }
+
     private void CheckForGrounded()
     {
         bool hasDetectedHit = Physics.SphereCast(ColliderMidPos, sphereCastRadius, -transform.up, out _groundHit,
@@ -239,15 +241,22 @@ public class AdvancedCharacterController : MonoBehaviour
             return;
         }
 
+        if (Vector3.Angle(_groundHit.normal, transform.up) < slopeLimit)
+        {
+            OnSlope = true;
+        }
+
         IsGrounded = true;
     }
 
     #endregion
-    
+
     #region Move
 
+    [Range(0, 90)] public float slopeLimit = 30f;
+    public float stepOffset = 0.3f;
+
     private Vector3 _moveVector = Vector3.zero;
-    private Vector3 _adjustmentVector = Vector3.zero;
 
     public void Move(Vector3 moveVector)
     {
@@ -258,22 +267,25 @@ public class AdvancedCharacterController : MonoBehaviour
     {
         CheckForGrounded();
 
-        UpdateAdjustmentVector();
+        UpdateMoveVector();
 
-        Rigidbody.velocity = _moveVector + _adjustmentVector;
+        Rigidbody.velocity = _moveVector;
     }
 
-    private void UpdateAdjustmentVector()
+    private void UpdateMoveVector()
     {
-        _adjustmentVector = Vector3.zero;
-
         if (IsGrounded)
         {
-            _adjustmentVector.y = -stickToGroundForce;
+            _moveVector.y += -stickToGroundForce;
         }
         else
         {
-            _adjustmentVector.y += gravityForce * Time.fixedDeltaTime * Physics.gravity.y;
+            _moveVector.y += gravityForce * Time.fixedDeltaTime * Physics.gravity.y;
+        }
+
+        if (OnSlope)
+        {
+            // TODO Add code to manipulate character controller when on slope 
         }
     }
 
