@@ -168,8 +168,5 @@ public class AdvancedCharacterControllerEditor : Editor
         EditorGUILayout.EndFoldoutHeaderGroup();
 
         serializedObject.ApplyModifiedProperties();
-        EditorGUILayout.Space();
-
-        DrawDefaultInspector();
     }
 }
