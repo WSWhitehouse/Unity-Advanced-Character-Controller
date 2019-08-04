@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class AdvancedCharacterController : MonoBehaviour
 {
-    // Components
+    #region Components
+
     private List<CapsuleCollider> _capsuleColliders = new List<CapsuleCollider>();
     private List<Rigidbody> _rigidbodies = new List<Rigidbody>();
 
@@ -34,8 +36,6 @@ public class AdvancedCharacterController : MonoBehaviour
         }
     }
 
-    #region Components
-
     private void GetCollider()
     {
         _capsuleColliders.Clear();
@@ -55,7 +55,7 @@ public class AdvancedCharacterController : MonoBehaviour
         }
 
         _capsuleColliders[0].hideFlags = HideFlags.HideInInspector;
-        SetColliderValues();
+        UpdateColliderValues();
     }
 
     private void GetRigidbody()
@@ -65,7 +65,6 @@ public class AdvancedCharacterController : MonoBehaviour
 
         if (_rigidbodies.Count == 0)
         {
-            Debug.Log("rb");
             var rb = gameObject.AddComponent<Rigidbody>();
             _rigidbodies.Add(rb);
         }
@@ -80,18 +79,148 @@ public class AdvancedCharacterController : MonoBehaviour
         }
 
         _rigidbodies[0].hideFlags = HideFlags.HideInInspector;
-        SetRigidbodyValues();
+        UpdateRigidbodyValues();
     }
 
-    public void SetColliderValues()
+    #endregion
+
+    #region ColliderValues
+
+    public float radius = 0.5f;
+    public float height = 2f;
+    public Vector3 center = Vector3.up;
+
+    public Vector3 ColliderMidPos =>
+        new Vector3(transform.position.x, transform.position.y + height / 2f, transform.position.z);
+
+    public void SetColliderRadius(float radius)
     {
-        // TODO Set collider values
+        if (radius == this.radius)
+        {
+            return;
+        }
+
+        this.radius = radius;
+        UpdateColliderValues();
     }
 
-    public void SetRigidbodyValues()
+    public void SetColliderHeight(float height)
     {
-        // TODO Set rigidbody values
+        if (height == this.height)
+        {
+            return;
+        }
+
+        this.height = height;
+        UpdateColliderValues();
     }
+
+    public void SetColliderCenter(Vector3 center)
+    {
+        if (center.Equals(this.center))
+        {
+            return;
+        }
+
+        this.center = center;
+        UpdateColliderValues();
+    }
+
+    private void UpdateColliderValues()
+    {
+        if (!Application.isPlaying) return;
+
+        Collider.radius = radius;
+        Collider.height = height;
+        Collider.center = center;
+
+        if (Collider.material == null)
+        {
+            Collider.material = SetUpPhysicMaterial();
+        }
+
+        if (!ignoreColliders.Contains(Collider))
+        {
+            ignoreColliders.Add(Collider);
+        }
+    }
+
+    private PhysicMaterial SetUpPhysicMaterial()
+    {
+        return new PhysicMaterial("No Friction") {dynamicFriction = 0, staticFriction = 0, bounciness = 0};
+    }
+
+    #endregion
+
+    #region RigidbodyValues
+
+    public float mass = 1f;
+    public float drag = 0f;
+    public float angularDrag = 0.05f;
+    public float gravityForce = 30f;
+    public float stickToGroundForce = 10f;
+
+    public void SetRigidbodyMass(float mass)
+    {
+        if (mass == this.mass)
+        {
+            return;
+        }
+
+        this.mass = mass;
+        UpdateRigidbodyValues();
+    }
+
+    public void SetRigidbodyDrag(float drag)
+    {
+        if (drag == this.drag)
+        {
+            return;
+        }
+
+        this.drag = drag;
+        UpdateRigidbodyValues();
+    }
+
+    public void SetRigidbodyAngularDrag(float angularDrag)
+    {
+        if (angularDrag == this.angularDrag)
+        {
+            return;
+        }
+
+        this.angularDrag = angularDrag;
+        UpdateRigidbodyValues();
+    }
+
+    private void UpdateRigidbodyValues()
+    {
+        if (!Application.isPlaying) return;
+
+        Rigidbody.mass = mass;
+        Rigidbody.drag = drag;
+        Rigidbody.angularDrag = angularDrag;
+        Rigidbody.useGravity = false;
+        Rigidbody.isKinematic = false;
+        Rigidbody.freezeRotation = true;
+    }
+
+    #endregion
+
+    #region GroundedProperties
+
+    public float sphereCastRadius = 0.5f;
+    [Range(0f, 1f)] public float sphereCastDepth = 0.03f;
+    public LayerMask layerMask = Physics.AllLayers;
+    public List<Collider> ignoreColliders = new List<Collider>();
+
+    public Vector3 SphereCastPos =>
+        new Vector3(ColliderMidPos.x, ColliderMidPos.y - SphereCastDistance, ColliderMidPos.z);
+
+    public float SphereCastDistance => height / 2f + sphereCastRadius - (1f - sphereCastDepth);
+
+    private RaycastHit groundHit;
+    public bool IsGrounded; // { get; private set; }
 
     #endregion
 
@@ -99,5 +228,56 @@ public class AdvancedCharacterController : MonoBehaviour
     {
         GetCollider();
         GetRigidbody();
+    }
+
+    private Vector3 _moveVector = Vector3.zero;
+    private Vector3 _adjustmentVector = Vector3.zero;
+
+    public void Move(Vector3 moveVector)
+    {
+        _moveVector = moveVector;
+    }
+
+    private void FixedUpdate()
+    {
+        CheckForGrounded();
+
+        UpdateAdjustmentVector();
+
+        Rigidbody.velocity = _moveVector + _adjustmentVector;
+    }
+
+    private void UpdateAdjustmentVector()
+    {
+        _adjustmentVector = Vector3.zero;
+
+        if (IsGrounded)
+        {
+            _adjustmentVector.y = -stickToGroundForce;
+        }
+        else
+        {
+            _adjustmentVector.y += gravityForce * Time.fixedDeltaTime * Physics.gravity.y;
+        }
+    }
+
+    private void CheckForGrounded()
+    {
+        bool hasDetectedHit = Physics.SphereCast(ColliderMidPos, sphereCastRadius, -transform.up, out groundHit,
+            SphereCastDistance, layerMask, QueryTriggerInteraction.Ignore);
+
+        if (!hasDetectedHit)
+        {
+            IsGrounded = false;
+            return;
+        }
+
+        if (ignoreColliders.Contains(groundHit.collider))
+        {
+            IsGrounded = false;
+            return;
+        }
+
+        IsGrounded = true;
     }
 }
