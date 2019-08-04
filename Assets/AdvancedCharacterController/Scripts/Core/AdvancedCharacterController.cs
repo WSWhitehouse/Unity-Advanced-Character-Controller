@@ -177,7 +177,7 @@ public class AdvancedCharacterController : MonoBehaviour
         {
             return;
         }
-
+        
         this.drag = drag;
         UpdateRigidbodyValues();
     }
@@ -217,18 +217,34 @@ public class AdvancedCharacterController : MonoBehaviour
     public Vector3 SphereCastPos =>
         new Vector3(ColliderMidPos.x, ColliderMidPos.y - SphereCastDistance, ColliderMidPos.z);
 
-    public float SphereCastDistance => height / 2f + sphereCastRadius - (1f - sphereCastDepth);
+    private float SphereCastDistance => height / 2f + sphereCastRadius - (1f - sphereCastDepth);
 
-    private RaycastHit groundHit;
-    public bool IsGrounded; // { get; private set; }
+    private RaycastHit _groundHit;
+    public bool IsGrounded { get; private set; }
+
+    private void CheckForGrounded()
+    {
+        bool hasDetectedHit = Physics.SphereCast(ColliderMidPos, sphereCastRadius, -transform.up, out _groundHit,
+            SphereCastDistance, layerMask, QueryTriggerInteraction.Ignore);
+
+        if (!hasDetectedHit)
+        {
+            IsGrounded = false;
+            return;
+        }
+
+        if (ignoreColliders.Contains(_groundHit.collider))
+        {
+            IsGrounded = false;
+            return;
+        }
+
+        IsGrounded = true;
+    }
 
     #endregion
-
-    private void Awake()
-    {
-        GetCollider();
-        GetRigidbody();
-    }
+    
+    #region Move
 
     private Vector3 _moveVector = Vector3.zero;
     private Vector3 _adjustmentVector = Vector3.zero;
@@ -261,23 +277,11 @@ public class AdvancedCharacterController : MonoBehaviour
         }
     }
 
-    private void CheckForGrounded()
+    #endregion
+
+    private void Awake()
     {
-        bool hasDetectedHit = Physics.SphereCast(ColliderMidPos, sphereCastRadius, -transform.up, out groundHit,
-            SphereCastDistance, layerMask, QueryTriggerInteraction.Ignore);
-
-        if (!hasDetectedHit)
-        {
-            IsGrounded = false;
-            return;
-        }
-
-        if (ignoreColliders.Contains(groundHit.collider))
-        {
-            IsGrounded = false;
-            return;
-        }
-
-        IsGrounded = true;
+        GetCollider();
+        GetRigidbody();
     }
 }
