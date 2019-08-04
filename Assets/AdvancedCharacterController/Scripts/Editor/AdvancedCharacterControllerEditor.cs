@@ -20,11 +20,14 @@ public class AdvancedCharacterControllerEditor : Editor
     private SerializedProperty _sphereCastDepth;
     private SerializedProperty _layerMask;
     private SerializedProperty _ignoreColliders;
+    private SerializedProperty _slopeLimit;
+    private SerializedProperty _stepOffset;
 
     //Foldouts
     private static bool _colliderValuesFoldout;
     private static bool _rigidbodyValuesFoldout;
     private static bool _groundedPropFoldout;
+    private static bool _movementPropFoldout;
 
     // Other
     private static bool _showGroundedSphereCast = false;
@@ -45,6 +48,8 @@ public class AdvancedCharacterControllerEditor : Editor
         _sphereCastDepth = serializedObject.FindProperty(nameof(_controller.sphereCastDepth));
         _layerMask = serializedObject.FindProperty(nameof(_controller.layerMask));
         _ignoreColliders = serializedObject.FindProperty(nameof(_controller.ignoreColliders));
+        _slopeLimit = serializedObject.FindProperty(nameof(_controller.slopeLimit));
+        _stepOffset = serializedObject.FindProperty(nameof(_controller.stepOffset));
     }
 
     private void OnSceneGUI()
@@ -161,6 +166,29 @@ public class AdvancedCharacterControllerEditor : Editor
                 _sphereCastRadius.floatValue = Mathf.Clamp(_sphereCastRadius.floatValue, 0, Mathf.Infinity);
                 _sphereCastDepth.floatValue = Mathf.Clamp(_sphereCastDepth.floatValue, 0, Mathf.Infinity);
             }
+
+            EditorGUI.indentLevel--;
+        }
+
+        EditorGUILayout.EndFoldoutHeaderGroup();
+
+        // Movement Properties
+        _movementPropFoldout =
+            EditorGUILayout.BeginFoldoutHeaderGroup(_movementPropFoldout, new GUIContent("Movement Properties"));
+
+        if (_movementPropFoldout)
+        {
+            EditorGUI.indentLevel++;
+
+            EditorGUILayout.HelpBox(
+                new GUIContent(
+                    "These values change how the character controller will move and react with the environment."));
+
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(_slopeLimit, true);
+            EditorGUILayout.PropertyField(_stepOffset, true);
+            if (EditorGUI.EndChangeCheck())
+            { }
 
             EditorGUI.indentLevel--;
         }
