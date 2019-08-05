@@ -346,6 +346,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1575761459}
   - component: {fileID: 1575761457}
+  - component: {fileID: 1575761458}
   m_Layer: 0
   m_Name: CharacterController
   m_TagString: Untagged
@@ -372,13 +373,34 @@ MonoBehaviour:
   drag: 0
   angularDrag: 0.05
   gravityForce: 30
-  stickToGroundForce: 10
+  stickToGroundForce: 1
   sphereCastRadius: 0.5
   sphereCastDepth: 0.03
   layerMask:
     serializedVersion: 2
     m_Bits: 4294967295
   ignoreColliders: []
+  slopeLimit: 30
+  stepOffset: 0.3
+--- !u!114 &1575761458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1575761456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a2f4e5534a832946baa38f02eb084a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  horizontalInput: Horizontal
+  verticalInput: Vertical
+  useRawInput: 0
+  jumpKey: 32
+  moveSpeed: 7
+  jumpSpeed: 15
+  jumpKeyPressed: 0
 --- !u!4 &1575761459
 Transform:
   m_ObjectHideFlags: 0
