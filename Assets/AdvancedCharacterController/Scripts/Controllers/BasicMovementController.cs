@@ -42,8 +42,7 @@ public class BasicMovementController : MonoBehaviour
 
         float horizontal;
         float vertical;
-
-        //Get input;
+        
         if (useRawInput)
         {
             horizontal = Input.GetAxisRaw(horizontalInput);
@@ -57,8 +56,7 @@ public class BasicMovementController : MonoBehaviour
 
         velocity += transform.right * horizontal;
         velocity += transform.forward * vertical;
-
-        //Clamp movement vector to magnitude of 1f;
+        
         if (velocity.magnitude > 1f)
             velocity.Normalize();
 
