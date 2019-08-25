@@ -259,7 +259,7 @@ public class AdvancedCharacterController : MonoBehaviour
     private Vector3 _moveVector = Vector3.zero;
 
     /// <summary>
-    /// Move the character controller in the direction of the "moveVector"
+    /// Move the character controller in the direction of the "moveVector". Call from FixedUpdate()
     /// </summary>
     /// <param name="moveVector"></param>
     public void Move(Vector3 moveVector)
@@ -278,6 +278,8 @@ public class AdvancedCharacterController : MonoBehaviour
 
     private void UpdateMoveVector()
     {
+        if (!autoApplyGravity) return;
+
         if (IsGrounded)
         {
             _moveVector.y += -stickToGroundForce;
