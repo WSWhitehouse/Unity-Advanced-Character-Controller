@@ -123,17 +123,16 @@ public class AdvancedCharacterControllerEditor : Editor
             float drag = EditorGUILayout.FloatField(new GUIContent("Drag"), _drag.floatValue);
             float angularDrag = EditorGUILayout.FloatField(new GUIContent("Angular Drag"), _angularDrag.floatValue);
             EditorGUILayout.Space();
-            
+
             EditorGUILayout.HelpBox(
-                new GUIContent("Auto apply gravity will use default gravity, setting this to false will allow you to apply your own gravity or not use it at all."));
+                new GUIContent(
+                    "Auto apply gravity will use default gravity, setting this to false will allow you to apply your own gravity or not use it at all."));
             EditorGUILayout.PropertyField(_autoApplyGravity, true);
-            if (_autoApplyGravity.boolValue)
-            {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.PropertyField(_gravityForce, true);
-                EditorGUILayout.PropertyField(_stickToGroundForce, true);
-                EditorGUI.indentLevel--;
-            }
+            GUI.enabled = _autoApplyGravity.boolValue;
+            EditorGUILayout.PropertyField(_gravityForce, true);
+            EditorGUILayout.PropertyField(_stickToGroundForce, true);
+            GUI.enabled = true;
+
 
             if (EditorGUI.EndChangeCheck())
             {
