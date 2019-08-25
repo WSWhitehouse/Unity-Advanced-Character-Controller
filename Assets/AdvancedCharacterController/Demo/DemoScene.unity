@@ -372,6 +372,7 @@ MonoBehaviour:
   mass: 1
   drag: 0
   angularDrag: 0.05
+  autoApplyGravity: 1
   gravityForce: 30
   stickToGroundForce: 1
   sphereCastRadius: 0.5
@@ -381,7 +382,6 @@ MonoBehaviour:
     m_Bits: 4294967295
   ignoreColliders: []
   slopeLimit: 30
-  stepOffset: 0.3
 --- !u!114 &1575761458
 MonoBehaviour:
   m_ObjectHideFlags: 0
