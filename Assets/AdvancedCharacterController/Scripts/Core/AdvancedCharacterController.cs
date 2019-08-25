@@ -157,6 +157,7 @@ public class AdvancedCharacterController : MonoBehaviour
     public float mass = 1f;
     public float drag = 0f;
     public float angularDrag = 0.05f;
+    public bool autoApplyGravity = true;
     public float gravityForce = 30f;
     public float stickToGroundForce = 10f;
 
@@ -254,10 +255,13 @@ public class AdvancedCharacterController : MonoBehaviour
     #region Move
 
     [Range(0, 90)] public float slopeLimit = 30f;
-    public float stepOffset = 0.3f;
 
     private Vector3 _moveVector = Vector3.zero;
 
+    /// <summary>
+    /// Move the character controller in the direction of the "moveVector"
+    /// </summary>
+    /// <param name="moveVector"></param>
     public void Move(Vector3 moveVector)
     {
         _moveVector = moveVector;

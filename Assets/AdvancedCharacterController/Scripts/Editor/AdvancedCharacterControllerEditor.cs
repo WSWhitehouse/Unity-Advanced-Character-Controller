@@ -21,7 +21,7 @@ public class AdvancedCharacterControllerEditor : Editor
     private SerializedProperty _layerMask;
     private SerializedProperty _ignoreColliders;
     private SerializedProperty _slopeLimit;
-    private SerializedProperty _stepOffset;
+    private SerializedProperty _autoApplyGravity;
 
     //Foldouts
     private static bool _colliderValuesFoldout;
@@ -49,7 +49,7 @@ public class AdvancedCharacterControllerEditor : Editor
         _layerMask = serializedObject.FindProperty(nameof(_controller.layerMask));
         _ignoreColliders = serializedObject.FindProperty(nameof(_controller.ignoreColliders));
         _slopeLimit = serializedObject.FindProperty(nameof(_controller.slopeLimit));
-        _stepOffset = serializedObject.FindProperty(nameof(_controller.stepOffset));
+        _autoApplyGravity = serializedObject.FindProperty(nameof(_controller.autoApplyGravity));
     }
 
     private void OnSceneGUI()
@@ -122,8 +122,19 @@ public class AdvancedCharacterControllerEditor : Editor
             float mass = EditorGUILayout.FloatField(new GUIContent("Mass"), _mass.floatValue);
             float drag = EditorGUILayout.FloatField(new GUIContent("Drag"), _drag.floatValue);
             float angularDrag = EditorGUILayout.FloatField(new GUIContent("Angular Drag"), _angularDrag.floatValue);
-            EditorGUILayout.PropertyField(_gravityForce, true);
-            EditorGUILayout.PropertyField(_stickToGroundForce, true);
+            EditorGUILayout.Space();
+            
+            EditorGUILayout.HelpBox(
+                new GUIContent("Auto apply gravity will use default gravity, setting this to false will allow you to apply your own gravity or not use it at all."));
+            EditorGUILayout.PropertyField(_autoApplyGravity, true);
+            if (_autoApplyGravity.boolValue)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(_gravityForce, true);
+                EditorGUILayout.PropertyField(_stickToGroundForce, true);
+                EditorGUI.indentLevel--;
+            }
+
             if (EditorGUI.EndChangeCheck())
             {
                 mass = Mathf.Clamp(mass, 0, Mathf.Infinity);
@@ -186,7 +197,6 @@ public class AdvancedCharacterControllerEditor : Editor
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(_slopeLimit, true);
-            EditorGUILayout.PropertyField(_stepOffset, true);
             if (EditorGUI.EndChangeCheck())
             { }
 
