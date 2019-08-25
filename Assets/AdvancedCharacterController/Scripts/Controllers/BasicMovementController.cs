@@ -10,13 +10,13 @@ public class BasicMovementController : MonoBehaviour
     [InputSelector] public string verticalInput = "Vertical";
     public bool useRawInput = false;
 
-    [SearchableEnum]public KeyCode jumpKey = KeyCode.Space;
+    [SearchableEnum] public KeyCode jumpKey = KeyCode.Space;
 
     public float moveSpeed = 7f;
 
     public float jumpSpeed = 15f;
 
-    public bool jumpKeyPressed = true;
+    public bool jumpKeyPressed;
     private AdvancedCharacterController _characterController;
 
     private void Awake()
@@ -32,7 +32,12 @@ public class BasicMovementController : MonoBehaviour
     private void FixedUpdate()
     {
         Vector3 velocity = CalculateMovement() * moveSpeed;
-        
+
+        if (jumpKeyPressed && _characterController.IsGrounded)
+        {
+            velocity += transform.up * jumpSpeed;
+        }
+
         _characterController.Move(velocity);
     }
 
@@ -42,7 +47,7 @@ public class BasicMovementController : MonoBehaviour
 
         float horizontal;
         float vertical;
-        
+
         if (useRawInput)
         {
             horizontal = Input.GetAxisRaw(horizontalInput);
@@ -56,7 +61,7 @@ public class BasicMovementController : MonoBehaviour
 
         velocity += transform.right * horizontal;
         velocity += transform.forward * vertical;
-        
+
         if (velocity.magnitude > 1f)
             velocity.Normalize();
 
