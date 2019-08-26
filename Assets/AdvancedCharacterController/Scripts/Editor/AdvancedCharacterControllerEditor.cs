@@ -29,9 +29,6 @@ public class AdvancedCharacterControllerEditor : Editor
     private static bool _groundedPropFoldout;
     private static bool _movementPropFoldout;
 
-    // Other
-    private static bool _showGroundedSphereCast = false;
-
     private void OnEnable()
     {
         _controller = (AdvancedCharacterController) target;
@@ -58,7 +55,7 @@ public class AdvancedCharacterControllerEditor : Editor
             _controller.transform.rotation, _radius.floatValue, _height.floatValue,
             Color.blue);
 
-        if (_showGroundedSphereCast)
+        if (_groundedPropFoldout)
         {
             DrawCapsule.DrawWireCapsule(_controller.SphereCastPos, _controller.transform.rotation,
                 _sphereCastRadius.floatValue,
@@ -162,15 +159,14 @@ public class AdvancedCharacterControllerEditor : Editor
             EditorGUI.indentLevel++;
 
             EditorGUILayout.HelpBox(
-                new GUIContent("These values change how accurately the controller will detect the ground."));
+                new GUIContent(
+                    "These values change how accurately the controller will detect the ground. Grounded sphere-cast Gizmo will show when this Foldout is open!"));
 
             EditorGUI.BeginChangeCheck();
             EditorGUILayout.PropertyField(_sphereCastRadius, true);
             EditorGUILayout.PropertyField(_sphereCastDepth, true);
             EditorGUILayout.PropertyField(_layerMask, true);
             EditorGUILayout.PropertyField(_ignoreColliders, true);
-            _showGroundedSphereCast = EditorGUILayout.Toggle(new GUIContent("[Debug] Show Gizmo"),
-                _showGroundedSphereCast);
             if (EditorGUI.EndChangeCheck())
             {
                 _sphereCastRadius.floatValue = Mathf.Clamp(_sphereCastRadius.floatValue, 0, Mathf.Infinity);
