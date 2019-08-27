@@ -126,8 +126,10 @@ public class AdvancedCharacterControllerEditor : Editor
                     "Auto apply gravity will use default gravity, setting this to false will allow you to apply your own gravity or not use it at all."));
             EditorGUILayout.PropertyField(_autoApplyGravity, true);
             GUI.enabled = _autoApplyGravity.boolValue;
+            EditorGUI.indentLevel++;
             EditorGUILayout.PropertyField(_gravityForce, true);
             EditorGUILayout.PropertyField(_stickToGroundForce, true);
+            EditorGUI.indentLevel--;
             GUI.enabled = true;
 
 
