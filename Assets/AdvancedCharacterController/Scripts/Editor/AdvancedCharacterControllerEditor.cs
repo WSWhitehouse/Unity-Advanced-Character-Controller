@@ -8,20 +8,11 @@ public class AdvancedCharacterControllerEditor : Editor
     private AdvancedCharacterController _controller;
 
     // Serialized Propeties
-    private SerializedProperty _radius;
-    private SerializedProperty _height;
-    private SerializedProperty _center;
-    private SerializedProperty _mass;
-    private SerializedProperty _drag;
-    private SerializedProperty _angularDrag;
-    private SerializedProperty _gravityForce;
-    private SerializedProperty _stickToGroundForce;
     private SerializedProperty _sphereCastRadius;
     private SerializedProperty _sphereCastDepth;
     private SerializedProperty _layerMask;
     private SerializedProperty _ignoreColliders;
     private SerializedProperty _slopeLimit;
-    private SerializedProperty _autoApplyGravity;
 
     //Foldouts
     private static bool _colliderValuesFoldout;
@@ -33,26 +24,17 @@ public class AdvancedCharacterControllerEditor : Editor
     {
         _controller = (AdvancedCharacterController) target;
 
-        _radius = serializedObject.FindProperty(nameof(_controller.radius));
-        _height = serializedObject.FindProperty(nameof(_controller.height));
-        _center = serializedObject.FindProperty(nameof(_controller.center));
-        _mass = serializedObject.FindProperty(nameof(_controller.mass));
-        _drag = serializedObject.FindProperty(nameof(_controller.drag));
-        _angularDrag = serializedObject.FindProperty(nameof(_controller.angularDrag));
-        _gravityForce = serializedObject.FindProperty(nameof(_controller.gravityForce));
-        _stickToGroundForce = serializedObject.FindProperty(nameof(_controller.stickToGroundForce));
         _sphereCastRadius = serializedObject.FindProperty(nameof(_controller.sphereCastRadius));
         _sphereCastDepth = serializedObject.FindProperty(nameof(_controller.sphereCastDepth));
         _layerMask = serializedObject.FindProperty(nameof(_controller.layerMask));
         _ignoreColliders = serializedObject.FindProperty(nameof(_controller.ignoreColliders));
         _slopeLimit = serializedObject.FindProperty(nameof(_controller.slopeLimit));
-        _autoApplyGravity = serializedObject.FindProperty(nameof(_controller.autoApplyGravity));
     }
 
     private void OnSceneGUI()
     {
-        DrawCapsule.DrawWireCapsule(_controller.transform.position + _center.vector3Value,
-            _controller.transform.rotation, _radius.floatValue, _height.floatValue,
+        DrawCapsule.DrawWireCapsule(_controller.transform.position + _controller.Center,
+            _controller.transform.rotation, _controller.Radius, _controller.Height,
             Color.blue);
 
         if (_groundedPropFoldout)
@@ -79,21 +61,11 @@ public class AdvancedCharacterControllerEditor : Editor
             EditorGUILayout.HelpBox(new GUIContent("These values change the size of the player collider."));
 
             EditorGUI.BeginChangeCheck();
-            float radius = EditorGUILayout.FloatField(new GUIContent("Radius"), _radius.floatValue);
-            float height = EditorGUILayout.FloatField(new GUIContent("Height"), _height.floatValue);
-            var center = EditorGUILayout.Vector3Field(new GUIContent("Center"), _center.vector3Value);
+            float radius = EditorGUILayout.FloatField(new GUIContent("Radius"), _controller.Radius);
+            float height = EditorGUILayout.FloatField(new GUIContent("Height"), _controller.Height);
+            var center = EditorGUILayout.Vector3Field(new GUIContent("Center"), _controller.Center);
             if (EditorGUI.EndChangeCheck())
             {
-                height = Mathf.Clamp(height, 0, Mathf.Infinity);
-                if (height <= 0)
-                {
-                    radius = 0;
-                }
-                else
-                {
-                    radius = Mathf.Clamp(radius, 0, height / 2f);
-                }
-
                 _controller.SetColliderHeight(height);
                 _controller.SetColliderRadius(radius);
                 _controller.SetColliderCenter(center);
@@ -116,30 +88,29 @@ public class AdvancedCharacterControllerEditor : Editor
                 new GUIContent("These values change how the controller will react to the physics and gravity."));
 
             EditorGUI.BeginChangeCheck();
-            float mass = EditorGUILayout.FloatField(new GUIContent("Mass"), _mass.floatValue);
-            float drag = EditorGUILayout.FloatField(new GUIContent("Drag"), _drag.floatValue);
-            float angularDrag = EditorGUILayout.FloatField(new GUIContent("Angular Drag"), _angularDrag.floatValue);
+            float mass = EditorGUILayout.FloatField(new GUIContent("Mass"), _controller.Mass);
+            float drag = EditorGUILayout.FloatField(new GUIContent("Drag"), _controller.Drag);
+            float angularDrag = EditorGUILayout.FloatField(new GUIContent("Angular Drag"), _controller.AngularDrag);
             EditorGUILayout.Space();
 
             EditorGUILayout.HelpBox(
                 new GUIContent(
                     "Auto apply gravity will use default gravity, setting this to false will allow you to apply your own gravity or not use it at all."));
-            EditorGUILayout.PropertyField(_autoApplyGravity, true);
-            GUI.enabled = _autoApplyGravity.boolValue;
+            _controller.autoApplyGravity =
+                EditorGUILayout.Toggle(new GUIContent("Auto Apply Gravity"), _controller.autoApplyGravity);
+            GUI.enabled = _controller.autoApplyGravity;
             EditorGUI.indentLevel++;
-            EditorGUILayout.PropertyField(_gravityForce, true);
-            EditorGUILayout.PropertyField(_stickToGroundForce, true);
+            float gravityForce = EditorGUILayout.FloatField(new GUIContent("Gravity Force"), _controller.gravityForce);
+            float stickToGroundForce = EditorGUILayout.FloatField(new GUIContent("Stick To Ground Force"),
+                _controller.stickToGroundForce);
             EditorGUI.indentLevel--;
             GUI.enabled = true;
 
 
             if (EditorGUI.EndChangeCheck())
             {
-                mass = Mathf.Clamp(mass, 0, Mathf.Infinity);
-                drag = Mathf.Clamp(drag, 0, Mathf.Infinity);
-                angularDrag = Mathf.Clamp(angularDrag, 0, Mathf.Infinity);
-                _gravityForce.floatValue = Mathf.Clamp(_gravityForce.floatValue, 0, Mathf.Infinity);
-                _stickToGroundForce.floatValue = Mathf.Clamp(_stickToGroundForce.floatValue, 0, Mathf.Infinity);
+                _controller.gravityForce = Mathf.Clamp(gravityForce, 0, Mathf.Infinity);
+                _controller.stickToGroundForce = Mathf.Clamp(stickToGroundForce, 0, Mathf.Infinity);
 
                 _controller.SetRigidbodyMass(mass);
                 _controller.SetRigidbodyDrag(drag);

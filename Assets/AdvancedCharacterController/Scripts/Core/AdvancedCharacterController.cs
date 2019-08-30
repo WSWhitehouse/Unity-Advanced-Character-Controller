@@ -3,13 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+/// <summary>
+/// This is a more advanced and capable character controller for Unity3D. It is designed to replace the current character controller that is packaged in Unity.
+/// </summary>
 public class AdvancedCharacterController : MonoBehaviour
 {
+    // Components that are apart of the AdvancedCharacterController - Capsule Collider and Rigidbody
+
     #region Components
 
     private List<CapsuleCollider> _capsuleColliders = new List<CapsuleCollider>();
     private List<Rigidbody> _rigidbodies = new List<Rigidbody>();
 
+    /// <summary>
+    /// The main collider for the AdvancedCharacterController
+    /// </summary>
     public CapsuleCollider Collider
     {
         get
@@ -23,6 +31,9 @@ public class AdvancedCharacterController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// The Rigidbody for the AdvancedCharacterController
+    /// </summary>
     public Rigidbody Rigidbody
     {
         get
@@ -36,6 +47,9 @@ public class AdvancedCharacterController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Get the Collider from this GameObject, or add it if one doesn't exist
+    /// </summary>
     private void GetCollider()
     {
         _capsuleColliders.Clear();
@@ -58,6 +72,9 @@ public class AdvancedCharacterController : MonoBehaviour
         UpdateColliderValues();
     }
 
+    /// <summary>
+    /// Get the Rigidbody from this GameObject, or add it if one doesn't exist
+    /// </summary>
     private void GetRigidbody()
     {
         _rigidbodies.Clear();
@@ -84,45 +101,84 @@ public class AdvancedCharacterController : MonoBehaviour
 
     #endregion
 
+    // Values to control the Collider of the AdvancedCharacterController
+
     #region ColliderValues
 
-    public float radius = 0.5f;
-    public float height = 2f;
-    public Vector3 center = Vector3.up;
+    /// <summary>
+    /// Radius of AdvancedCharacterController Collider
+    /// </summary>
+    public float Radius { get; private set; } = 0.5f;
 
+    /// <summary>
+    /// Height of AdvancedCharacterController Collider
+    /// </summary>
+    public float Height { get; private set; } = 2f;
+
+    /// <summary>
+    /// Center of AdvancedCharacterController Collider
+    /// </summary>
+    public Vector3 Center { get; private set; } = Vector3.up;
+
+    /// <summary>
+    /// Returns the mid-point position of the collider
+    /// </summary>
     public Vector3 ColliderMidPos =>
-        new Vector3(transform.position.x, transform.position.y + height / 2f, transform.position.z);
+        new Vector3(transform.position.x, transform.position.y + Height / 2f, transform.position.z);
 
+    /// <summary>
+    /// Set the Radius of the AdvancedCharacterController Collider
+    /// </summary>
+    /// <param name="radius"></param>
     public void SetColliderRadius(float radius)
     {
-        if (radius == this.radius)
+        if (Height <= 0)
+        {
+            radius = 0;
+        }
+        else
+        {
+            radius = Mathf.Clamp(radius, 0, Height / 2f);
+        }
+
+        if (radius.Equals(Radius))
         {
             return;
         }
 
-        this.radius = radius;
+        Radius = radius;
         UpdateColliderValues();
     }
 
+    /// <summary>
+    /// Set the Height of the AdvancedCharacterController Collider
+    /// </summary>
+    /// <param name="height"></param>
     public void SetColliderHeight(float height)
     {
-        if (height == this.height)
+        height = Mathf.Clamp(height, 0, Mathf.Infinity);
+
+        if (height.Equals(Height))
         {
             return;
         }
 
-        this.height = height;
+        Height = height;
         UpdateColliderValues();
     }
 
+    /// <summary>
+    /// Set the Center of the AdvancedCharacterController Collider
+    /// </summary>
+    /// <param name="center"></param>
     public void SetColliderCenter(Vector3 center)
     {
-        if (center.Equals(this.center))
+        if (center.Equals(Center))
         {
             return;
         }
 
-        this.center = center;
+        Center = center;
         UpdateColliderValues();
     }
 
@@ -130,13 +186,13 @@ public class AdvancedCharacterController : MonoBehaviour
     {
         if (!Application.isPlaying) return;
 
-        Collider.radius = radius;
-        Collider.height = height;
-        Collider.center = center;
+        Collider.radius = Radius;
+        Collider.height = Height;
+        Collider.center = Center;
 
         if (Collider.material == null)
         {
-            Collider.material = SetUpPhysicMaterial();
+            Collider.material = NoFrictionPhysicMaterial();
         }
 
         if (!ignoreColliders.Contains(Collider))
@@ -145,52 +201,84 @@ public class AdvancedCharacterController : MonoBehaviour
         }
     }
 
-    private PhysicMaterial SetUpPhysicMaterial()
+    private PhysicMaterial NoFrictionPhysicMaterial()
     {
         return new PhysicMaterial("No Friction") {dynamicFriction = 0, staticFriction = 0, bounciness = 0};
     }
 
     #endregion
 
+    // Values to control the Rigidbody of the AdvancedCharacterController
+
     #region RigidbodyValues
 
-    public float mass = 1f;
-    public float drag = 0f;
-    public float angularDrag = 0.05f;
-    public bool autoApplyGravity = true;
+    /// <summary>
+    /// Mass of the AdvancedCharacterController
+    /// </summary>
+    public float Mass { get; private set; } = 1f;
+
+    /// <summary>
+    /// Drag of the AdvancedCharacterController
+    /// </summary>
+    public float Drag { get; private set; } = 0f;
+
+    /// <summary>
+    /// Angular Drag of the AdvancedCharacterController
+    /// </summary>
+    public float AngularDrag { get; private set; } = 0.05f;
+
+    public bool autoApplyGravity { get; set; } = true;
     public float gravityForce = 30f;
     public float stickToGroundForce = 10f;
 
+    /// <summary>
+    /// Set the Mass of the AdvancedCharacterController Rigidbody
+    /// </summary>
+    /// <param name="mass"></param>
     public void SetRigidbodyMass(float mass)
     {
-        if (mass == this.mass)
+        mass = Mathf.Clamp(mass, 0, Mathf.Infinity);
+
+        if (mass.Equals(Mass))
         {
             return;
         }
 
-        this.mass = mass;
+        Mass = mass;
         UpdateRigidbodyValues();
     }
 
+    /// <summary>
+    /// Set the Drag of the AdvancedCharacterController Rigidbody
+    /// </summary>
+    /// <param name="drag"></param>
     public void SetRigidbodyDrag(float drag)
     {
-        if (drag == this.drag)
+        drag = Mathf.Clamp(drag, 0, Mathf.Infinity);
+
+        if (drag.Equals(Drag))
         {
             return;
         }
 
-        this.drag = drag;
+        Drag = drag;
         UpdateRigidbodyValues();
     }
 
+    /// <summary>
+    /// Set the AngularDrag of the AdvancedCharacterController Rigidbody
+    /// </summary>
+    /// <param name="angularDrag"></param>
     public void SetRigidbodyAngularDrag(float angularDrag)
     {
-        if (angularDrag == this.angularDrag)
+        angularDrag = Mathf.Clamp(angularDrag, 0, Mathf.Infinity);
+
+        if (angularDrag.Equals(AngularDrag))
         {
             return;
         }
 
-        this.angularDrag = angularDrag;
+        AngularDrag = angularDrag;
         UpdateRigidbodyValues();
     }
 
@@ -198,15 +286,17 @@ public class AdvancedCharacterController : MonoBehaviour
     {
         if (!Application.isPlaying) return;
 
-        Rigidbody.mass = mass;
-        Rigidbody.drag = drag;
-        Rigidbody.angularDrag = angularDrag;
+        Rigidbody.mass = Mass;
+        Rigidbody.drag = Drag;
+        Rigidbody.angularDrag = AngularDrag;
         Rigidbody.useGravity = false;
         Rigidbody.isKinematic = false;
         Rigidbody.freezeRotation = true;
     }
 
     #endregion
+
+    // Values for checking for the ground
 
     #region GroundedProperties
 
@@ -218,7 +308,7 @@ public class AdvancedCharacterController : MonoBehaviour
     public Vector3 SphereCastPos =>
         new Vector3(ColliderMidPos.x, ColliderMidPos.y - SphereCastDistance, ColliderMidPos.z);
 
-    private float SphereCastDistance => height / 2f + sphereCastRadius - (1f - sphereCastDepth);
+    private float SphereCastDistance => Height / 2f + sphereCastRadius - (1f - sphereCastDepth);
 
     private RaycastHit _groundHit;
     public bool IsGrounded { get; private set; }
@@ -251,6 +341,8 @@ public class AdvancedCharacterController : MonoBehaviour
     }
 
     #endregion
+
+    // Moving the AdvancedCharacterController
 
     #region Move
 
