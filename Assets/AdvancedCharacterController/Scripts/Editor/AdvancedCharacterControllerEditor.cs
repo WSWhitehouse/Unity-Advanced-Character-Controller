@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 [CustomEditor(typeof(AdvancedCharacterController))]
@@ -7,7 +6,7 @@ public class AdvancedCharacterControllerEditor : Editor
 {
     private AdvancedCharacterController _controller;
 
-    // Serialized Propeties
+    // Serialized Properties
     private SerializedProperty _sphereCastRadius;
     private SerializedProperty _sphereCastDepth;
     private SerializedProperty _layerMask;
@@ -63,7 +62,7 @@ public class AdvancedCharacterControllerEditor : Editor
             EditorGUI.BeginChangeCheck();
             float radius = EditorGUILayout.FloatField(new GUIContent("Radius"), _controller.Radius);
             float height = EditorGUILayout.FloatField(new GUIContent("Height"), _controller.Height);
-            var center = EditorGUILayout.Vector3Field(new GUIContent("Center"), _controller.Center);
+            Vector3 center = EditorGUILayout.Vector3Field(new GUIContent("Center"), _controller.Center);
             if (EditorGUI.EndChangeCheck())
             {
                 _controller.SetColliderHeight(height);

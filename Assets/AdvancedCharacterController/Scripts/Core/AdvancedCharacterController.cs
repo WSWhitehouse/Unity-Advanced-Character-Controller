@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -11,7 +10,6 @@ public class AdvancedCharacterController : MonoBehaviour
     // Components that are apart of the AdvancedCharacterController - Capsule Collider and Rigidbody
 
     #region Components
-
     private List<CapsuleCollider> _capsuleColliders = new List<CapsuleCollider>();
     private List<Rigidbody> _rigidbodies = new List<Rigidbody>();
 
@@ -58,7 +56,7 @@ public class AdvancedCharacterController : MonoBehaviour
 
         if (_capsuleColliders.Count == 0)
         {
-            var collider = gameObject.AddComponent<CapsuleCollider>();
+            CapsuleCollider collider = gameObject.AddComponent<CapsuleCollider>();
             _capsuleColliders.Add(collider);
         }
 
@@ -98,13 +96,11 @@ public class AdvancedCharacterController : MonoBehaviour
         _rigidbodies[0].hideFlags = HideFlags.HideInInspector;
         UpdateRigidbodyValues();
     }
-
     #endregion
 
     // Values to control the Collider of the AdvancedCharacterController
 
     #region ColliderValues
-
     /// <summary>
     /// Radius of AdvancedCharacterController Collider
     /// </summary>
@@ -205,13 +201,11 @@ public class AdvancedCharacterController : MonoBehaviour
     {
         return new PhysicMaterial("No Friction") {dynamicFriction = 0, staticFriction = 0, bounciness = 0};
     }
-
     #endregion
 
     // Values to control the Rigidbody of the AdvancedCharacterController
 
     #region RigidbodyValues
-
     /// <summary>
     /// Mass of the AdvancedCharacterController
     /// </summary>
@@ -293,13 +287,11 @@ public class AdvancedCharacterController : MonoBehaviour
         Rigidbody.isKinematic = false;
         Rigidbody.freezeRotation = true;
     }
-
     #endregion
 
     // Values for checking for the ground
 
     #region GroundedProperties
-
     public float sphereCastRadius = 0.5f;
     [Range(0f, 1f)] public float sphereCastDepth = 0.03f;
     public LayerMask layerMask = Physics.AllLayers;
@@ -339,13 +331,11 @@ public class AdvancedCharacterController : MonoBehaviour
 
         IsGrounded = true;
     }
-
     #endregion
 
     // Moving the AdvancedCharacterController
 
     #region Move
-
     [Range(0, 90)] public float slopeLimit = 30f;
 
     private Vector3 _moveVector = Vector3.zero;
@@ -386,7 +376,6 @@ public class AdvancedCharacterController : MonoBehaviour
             // TODO Add code to manipulate character controller when on slope 
         }
     }
-
     #endregion
 
     private void Awake()
