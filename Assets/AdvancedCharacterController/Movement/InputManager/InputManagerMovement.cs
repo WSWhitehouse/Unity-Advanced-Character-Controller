@@ -5,11 +5,11 @@ namespace AdvancedCharacterController.Movement.InputManager
     [RequireComponent(typeof(Core.AdvancedCharacterController))]
     public class InputManagerMovement : MonoBehaviour
     {
-        [InputSelector] public string horizontalInput = "Horizontal";
-        [InputSelector] public string verticalInput = "Vertical";
+        public string horizontalInput = "Horizontal";
+        public string verticalInput = "Vertical";
         public bool useRawInput = false;
 
-        [SearchableEnum] public KeyCode jumpKey = KeyCode.Space;
+        public KeyCode jumpKey = KeyCode.Space;
 
         public float moveSpeed = 7f;
 
@@ -23,7 +23,7 @@ namespace AdvancedCharacterController.Movement.InputManager
             _characterController = GetComponent<Core.AdvancedCharacterController>();
         }
 
-        void Update()
+        private void Update()
         {
             jumpKeyPressed = Input.GetKey(jumpKey);
         }
