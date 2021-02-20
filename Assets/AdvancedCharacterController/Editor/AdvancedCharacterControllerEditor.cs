@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace AdvancedCharacterController.Editor
@@ -30,14 +31,20 @@ namespace AdvancedCharacterController.Editor
             _layerMask = serializedObject.FindProperty(nameof(_controller.layerMask));
             _ignoreColliders = serializedObject.FindProperty(nameof(_controller.ignoreColliders));
             _slopeLimit = serializedObject.FindProperty(nameof(_controller.slopeLimit));
-        }
 
-        private void OnSceneGUI()
+            SceneView.duringSceneGui -= OnSceneDrawAlways;
+            SceneView.duringSceneGui += OnSceneDrawAlways;
+        }
+        
+        private void OnSceneDrawAlways(SceneView view)
         {
             DrawCapsule.DrawWireCapsule(_controller.transform.position + _controller.Center,
                 _controller.transform.rotation, _controller.Radius, _controller.Height,
                 Color.blue);
+        }
 
+        private void OnSceneGUI()
+        {
             if (_groundedPropFoldout)
             {
                 DrawCapsule.DrawWireCapsule(_controller.SphereCastPos, _controller.transform.rotation,
@@ -101,7 +108,8 @@ namespace AdvancedCharacterController.Editor
                     EditorGUILayout.Toggle(new GUIContent("Auto Apply Gravity"), _controller.autoApplyGravity);
                 GUI.enabled = _controller.autoApplyGravity;
                 EditorGUI.indentLevel++;
-                float gravityForce = EditorGUILayout.FloatField(new GUIContent("Gravity Force"), _controller.gravityForce);
+                float gravityForce =
+                    EditorGUILayout.FloatField(new GUIContent("Gravity Force"), _controller.gravityForce);
                 float stickToGroundForce = EditorGUILayout.FloatField(new GUIContent("Stick To Ground Force"),
                     _controller.stickToGroundForce);
                 EditorGUI.indentLevel--;
@@ -167,7 +175,8 @@ namespace AdvancedCharacterController.Editor
                 EditorGUI.BeginChangeCheck();
                 EditorGUILayout.PropertyField(_slopeLimit, true);
                 if (EditorGUI.EndChangeCheck())
-                { }
+                {
+                }
 
                 EditorGUI.indentLevel--;
             }
